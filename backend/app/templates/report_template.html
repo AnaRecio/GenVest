@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>{{ report.company }} Report</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    h1, h2 { color: #003366; }
+    .section { margin-bottom: 30px; }
+    .chart-img { max-width: 600px; }
+    .markdown pre { background: #f4f4f4; padding: 10px; }
+  </style>
+</head>
+<body>
+  <h1>{{ report.company }} ({{ report.ticker }})</h1>
+
+  <div class="section">
+    <h2>Market Data</h2>
+    <ul>
+      <li>Current Price: ${{ report.marketData.currentPrice }}</li>
+      <li>Market Cap: {{ report.marketData.marketCap }}</li>
+      <li>PE Ratio: {{ report.marketData.trailingPE }}</li>
+      <li>52-Week High: {{ report.marketData.fiftyTwoWeekHigh }}</li>
+      <li>52-Week Low: {{ report.marketData.fiftyTwoWeekLow }}</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <h2>Price Forecast</h2>
+    <img src="data:image/png;base64,{{ report.priceChart }}" class="chart-img" />
+  </div>
+
+  <div class="section">
+    <h2>News Summary</h2>
+    <p>{{ report.news.summary }}</p>
+  </div>
+
+  <div class="section markdown">
+    <h2>SWOT Analysis & Investment Summary</h2>
+    <pre>{{ report.swot }}</pre>
+  </div>
+
+  <div class="section">
+    <h2>AI Recommendation</h2>
+    <p>{{ report.recommendation }}</p>
+  </div>
+</body>
+</html>

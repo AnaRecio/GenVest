@@ -1,0 +1,29 @@
+# Core Flask
+flask
+flask-cors
+
+# Financial data
+yfinance
+
+# Machine learning
+scikit-learn
+xgboost
+pandas
+numpy
+
+# LLM integration
+openai
+
+# News API
+requests
+
+# PDF generation
+reportlab
+pdfkit
+
+# Plotting
+matplotlib
+plotly
+
+# Environment variable management
+python-dotenv
