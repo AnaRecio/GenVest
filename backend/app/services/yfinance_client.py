@@ -16,4 +16,5 @@ def get_stock_data_from_yf(ticker):
         "fiftyTwoWeekHigh": info.get("fiftyTwoWeekHigh"),
         "fiftyTwoWeekLow": info.get("fiftyTwoWeekLow"),
         "sector": info.get("sector"),
+        "exchange": info.get("exchange"), 
     }

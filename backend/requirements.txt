@@ -7,7 +7,6 @@ yfinance
 
 # Machine learning
 scikit-learn
-xgboost
 pandas
 numpy
 

@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from app.models.predictor import predict_future_prices
+from app.models.price_predictor import predict_future_prices
 from app.utils.charts import plot_predictions
 
 prediction_bp = Blueprint("prediction", __name__)

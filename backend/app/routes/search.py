@@ -1,12 +1,13 @@
 from flask import Blueprint, request, jsonify
 import requests
 import os
-from rapidfuzz import fuzz, process
+from dotenv import load_dotenv
+load_dotenv()
 
 search_bp = Blueprint("search", __name__)
 FINNHUB_API_KEY = os.getenv("FINNHUB_API_KEY")
 
-# Cache all stocks here
+# Cache all stocks
 all_stocks = []
 
 def load_symbols():
@@ -26,7 +27,7 @@ def load_symbols():
     ]
     print(f"✅ Loaded {len(all_stocks)} tickers from Finnhub")
 
-# Load on app start
+# Load once
 load_symbols()
 
 @search_bp.route("/api/search", methods=["GET"])
@@ -38,25 +39,22 @@ def search_tickers():
     results = []
 
     for stock in all_stocks:
-        name = stock["name"].lower()
         symbol = stock["symbol"].lower()
+        name = stock["name"].lower()
 
-        # Prioritize direct inclusion first
-        if query in name or query in symbol:
+        score = 0
+        if query == symbol or query == name:
             score = 100
-        else:
-            score = max(
-                fuzz.partial_ratio(query, name),
-                fuzz.partial_ratio(query, symbol),
-                fuzz.token_set_ratio(query, name)
-            )
+        elif symbol.startswith(query) or name.startswith(query):
+            score = 90
+        elif query in symbol or query in name:
+            score = 80
 
-        if score >= 60:
+        if score > 0:
             results.append({**stock, "score": score})
 
-    # Sort by score and alphabetically to ensure consistency
+    # Sort highest score first, then alphabetically
     results = sorted(results, key=lambda x: (-x["score"], x["symbol"]))
 
-    # Return top 5 without score
-    final = [{"symbol": r["symbol"], "name": r["name"]} for r in results[:5]]
+    final = [{"symbol": r["symbol"], "name": r["name"]} for r in results[:10]]
     return jsonify(final)

@@ -6,7 +6,7 @@ from app.services.openai_client import (
     generate_swot_analysis,
     generate_investment_recommendation
 )
-from app.models.predictor import predict_future_prices
+from app.models.price_predictor import predict_future_prices
 from app.utils.charts import plot_predictions
 from app.services.yfinance_client import get_stock_data_from_yf
 from app.utils.pdf import generate_pdf_report

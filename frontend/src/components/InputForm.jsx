@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { searchTickers } from "../utils/api";
 
 const InputForm = ({ onSubmit }) => {
@@ -8,30 +8,19 @@ const InputForm = ({ onSubmit }) => {
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
 
-  // Fetch ticker suggestions on input
-  useEffect(() => {
-    const fetchSuggestions = async () => {
-      if (ticker.length < 2) {
-        setSuggestions([]);
-        return;
-      }
-
-      try {
-        const results = await searchTickers(ticker);
-        setSuggestions(results.slice(0, 5));
-        setShowSuggestions(true);
-      } catch (err) {
-        console.error("Ticker search failed:", err);
-      }
-    };
-
-    const debounce = setTimeout(fetchSuggestions, 300);
-    return () => clearTimeout(debounce);
-  }, [ticker]);
+  const handleTickerSearch = async () => {
+    if (ticker.length < 2) return;
+    try {
+      const results = await searchTickers(ticker);
+      setSuggestions(results.slice(0, 10));
+      setShowSuggestions(true);
+    } catch (err) {
+      console.error("Ticker search failed:", err);
+    }
+  };
 
   const handleSuggestionClick = (symbol) => {
     setTicker(symbol);
-    setSuggestions([]);
     setShowSuggestions(false);
   };
 
@@ -46,16 +35,22 @@ const InputForm = ({ onSubmit }) => {
       {/* Ticker Search */}
       <div className="relative">
         <label className="block mb-1 text-sm font-medium text-gray-700">Stock Ticker</label>
-        <input
-          type="text"
-          placeholder="e.g. AAPL or Tesla"
-          value={ticker}
-          onChange={(e) => {
-            setTicker(e.target.value);
-            setShowSuggestions(true);
-          }}
-          className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
+        <div className="flex space-x-2">
+          <input
+            type="text"
+            placeholder="e.g. AAPL or Tesla"
+            value={ticker}
+            onChange={(e) => setTicker(e.target.value)}
+            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <button
+            type="button"
+            onClick={handleTickerSearch}
+            className="bg-blue-600 text-white px-3 py-1 rounded-md hover:bg-blue-700 text-sm"
+          >
+            🔍 Search
+          </button>
+        </div>
         {showSuggestions && suggestions.length > 0 && (
           <ul className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-48 overflow-y-auto">
             {suggestions.map((item) => (
@@ -122,7 +117,7 @@ const InputForm = ({ onSubmit }) => {
         type="submit"
         className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition"
       >
-        🔍 Generate Report
+        🚀 Generate Report
       </button>
     </form>
   );

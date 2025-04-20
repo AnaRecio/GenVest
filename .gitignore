@@ -22,3 +22,7 @@ dist/
 frontend/.env
 frontend/node_modules/
 frontend/build/
+
+# Cached stock symbols
+app/cache/finnhub_symbols.json
+

@@ -54,8 +54,10 @@ def generate_pdf_report(report_data):
     # Market Data
     draw_bold_subtitle("Market Data")
     market = report_data.get("marketData", {})
+    current_price = market.get("currentPrice", None)
+
     draw_paragraph(f"""
-    Current Price: ${market.get('currentPrice', 'N/A')}
+    Current Price: ${current_price if current_price else 'N/A'}
     Market Cap: {market.get('marketCap', 'N/A')}
     P/E Ratio: {market.get('trailingPE', 'N/A')}
     52-Week High: {market.get('fiftyTwoWeekHigh', 'N/A')}
@@ -65,6 +67,8 @@ def generate_pdf_report(report_data):
 
     # Price Forecast Chart
     chart_data = report_data.get("priceChart")
+    forecast = report_data.get("forecast", [])
+
     if chart_data:
         try:
             draw_bold_subtitle("Price Forecast")
@@ -73,6 +77,43 @@ def generate_pdf_report(report_data):
             y -= 220
         except Exception as e:
             draw_paragraph(f"[Chart failed to render: {e}]")
+
+    # Forecast Summary Box (Next 7, 14, 30 Days)
+    def get_forecast_price(day_index):
+        try:
+            return forecast[day_index]["predicted_price"]
+        except:
+            return None
+
+    def get_price_change(predicted):
+        if not current_price or not predicted:
+            return "N/A"
+        delta = predicted - current_price
+        pct = (delta / current_price) * 100
+        sign = "+" if pct >= 0 else ""
+        return f"{sign}{pct:.2f}%"
+
+    def draw_forecast_box():
+        nonlocal y
+        check_page_space(100)
+        pdf.setFont("Helvetica-Bold", 11)
+        pdf.drawString(40, y, "Forecast Summary (Predicted Prices & Change)")
+        y -= 18
+
+        pdf.setFont("Helvetica", 10)
+        for days_ahead in [7, 14, 30]:
+            pred = get_forecast_price(days_ahead - 1)
+            if pred:
+                change = get_price_change(pred)
+                line = f"Next {days_ahead} Days: ${pred:.2f} ({change})"
+            else:
+                line = f"Next {days_ahead} Days: N/A"
+            pdf.drawString(60, y, line)
+            y -= 14
+        y -= 10
+
+    if forecast and current_price:
+        draw_forecast_box()
 
     # News Summary
     news_summary = report_data.get("news", {}).get("summary", "")
@@ -101,6 +142,7 @@ def generate_pdf_report(report_data):
         draw_bold_subtitle("AI Recommendation")
         draw_paragraph(recommendation)
 
+    # Finalize
     pdf.showPage()
     pdf.save()
     buffer.seek(0)

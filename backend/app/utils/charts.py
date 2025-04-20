@@ -1,4 +1,6 @@
+import matplotlib
 import matplotlib.pyplot as plt
+matplotlib.use('Agg')  # Use a non-GUI backend
 import io
 import base64
 
