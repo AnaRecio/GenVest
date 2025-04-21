@@ -23,14 +23,14 @@ def get_stock_data():
             # Extract relevant data and append to results list
             results.append({
                 "ticker": symbol,
-                "longName": info.get("longName"),                # Full company name
-                "currentPrice": info.get("currentPrice"),        # Latest market price
-                "marketCap": info.get("marketCap"),              # Market capitalization
+                "longName": info.get("longName"),               
+                "currentPrice": info.get("currentPrice"),        
+                "marketCap": info.get("marketCap"),              
                 "trailingPE": info.get("trailingPE"),            # Price-to-Earnings ratio (trailing 12 months)
                 "volume": info.get("volume"),                    # Latest trading volume
-                "fiftyTwoWeekHigh": info.get("fiftyTwoWeekHigh"),# 52-week high
-                "fiftyTwoWeekLow": info.get("fiftyTwoWeekLow"),  # 52-week low
-                "sector": info.get("sector"),                    # Business sector (e.g., Technology)
+                "fiftyTwoWeekHigh": info.get("fiftyTwoWeekHigh"),
+                "fiftyTwoWeekLow": info.get("fiftyTwoWeekLow"),  
+                "sector": info.get("sector"),                    
             })
 
         # Return the list of company data as JSON

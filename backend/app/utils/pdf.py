@@ -6,19 +6,21 @@ import base64
 import io
 from textwrap import wrap
 
-
 def generate_pdf_report(report_data):
+    # Create an in-memory PDF buffer
     buffer = io.BytesIO()
     pdf = canvas.Canvas(buffer, pagesize=letter)
     width, height = letter
-    y = height - 50
+    y = height - 50  # Initial top margin
 
+    # Ensure there is enough space on the current page; otherwise, create a new one
     def check_page_space(required_space=80):
         nonlocal y
         if y < required_space:
             pdf.showPage()
             y = height - 50
 
+    # Draw a large title (e.g., the company report header)
     def draw_title(title, size=14):
         nonlocal y
         check_page_space(40)
@@ -26,6 +28,7 @@ def generate_pdf_report(report_data):
         pdf.drawString(40, y, title)
         y -= 24
 
+    # Draw section subtitles in bold
     def draw_bold_subtitle(text, size=12):
         nonlocal y
         check_page_space(30)
@@ -33,6 +36,7 @@ def generate_pdf_report(report_data):
         pdf.drawString(40, y, text)
         y -= 18
 
+    # Draw wrapped text paragraphs with line breaks and padding
     def draw_paragraph(text, font="Helvetica", size=10, leading=14, wrap_width=95):
         nonlocal y
         check_page_space()
@@ -46,12 +50,12 @@ def generate_pdf_report(report_data):
                     pdf.setFont(font, size)
                 pdf.drawString(40, y, line)
                 y -= leading
-            y -= 8  # space between paragraphs
+            y -= 8  # Space between paragraphs
 
-    # === Report Content ===
+    # Draw the report title with ticker
     draw_title(f"{report_data['company']} ({report_data['ticker']}) Investment Report")
 
-    # Market Data
+    # Draw market metrics section
     draw_bold_subtitle("Market Data")
     market = report_data.get("marketData", {})
     current_price = market.get("currentPrice", None)
@@ -65,7 +69,7 @@ def generate_pdf_report(report_data):
     Sector: {market.get('sector', 'N/A')}
     """)
 
-    # Price Forecast Chart
+    # Draw forecast chart image (if available)
     chart_data = report_data.get("priceChart")
     forecast = report_data.get("forecast", [])
     mae = report_data.get("mae", None)
@@ -79,13 +83,14 @@ def generate_pdf_report(report_data):
         except Exception as e:
             draw_paragraph(f"[Chart failed to render: {e}]")
 
-    # Forecast Summary Box (Next 7, 14, 30 Days)
+    # Helper to get a predicted price for a given day index
     def get_forecast_price(day_index):
         try:
             return forecast[day_index]["predicted_price"]
         except:
             return None
 
+    # Helper to calculate percent change from current price
     def get_price_change(predicted):
         if not current_price or not predicted:
             return "N/A"
@@ -94,6 +99,7 @@ def generate_pdf_report(report_data):
         sign = "+" if pct >= 0 else ""
         return f"{sign}{pct:.2f}%"
 
+    # Forecast summary box with 7, 14, 30-day prices and MAE
     def draw_forecast_box():
         nonlocal y
         check_page_space(100)
@@ -123,13 +129,13 @@ def generate_pdf_report(report_data):
     if forecast and current_price:
         draw_forecast_box()
 
-    # News Summary
+    # News summary section
     news_summary = report_data.get("news", {}).get("summary", "")
     if news_summary:
         draw_bold_subtitle("News Summary")
         draw_paragraph(news_summary)
 
-    # SWOT Analysis
+    # SWOT section, parsed as markdown-style with headings
     swot_text = report_data.get("swot", "")
     if swot_text:
         draw_bold_subtitle("SWOT & Investment Summary")
@@ -144,13 +150,13 @@ def generate_pdf_report(report_data):
             else:
                 draw_paragraph(stripped)
 
-    # AI Recommendation
+    # AI-generated investment recommendation section
     recommendation = report_data.get("recommendation", "")
     if recommendation:
         draw_bold_subtitle("AI Recommendation")
         draw_paragraph(recommendation)
 
-    # Finalize
+    # Finalize the document and return byte content
     pdf.showPage()
     pdf.save()
     buffer.seek(0)

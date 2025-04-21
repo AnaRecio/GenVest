@@ -13,66 +13,57 @@ from app.services.yfinance_client import get_stock_data_from_yf
 from app.utils.pdf import generate_pdf_report
 import io
 
+# Define a Flask Blueprint for report generation endpoints
 report_bp = Blueprint("report", __name__, url_prefix="/api")
 
-# === Generate Report ===
 @report_bp.route("/report", methods=["POST", "OPTIONS"])
 def generate_full_report():
+    # Handle preflight CORS requests
     if request.method == "OPTIONS":
-        return '', 204  # Handle CORS preflight
+        return '', 204
 
     try:
-        print("📥 POST /api/report hit")
-
+        # Parse input data from request payload
         data = request.get_json()
         ticker = data.get("ticker")
         openai_key = data.get("openai_key")
         serper_key = data.get("serper_key")
 
-        print(f"➡️ Ticker: {ticker}, OpenAI Key: {bool(openai_key)}, Serper Key: {bool(serper_key)}")
-
+        # Validate required fields
         if not ticker or not openai_key or not serper_key:
             return jsonify({"error": "Missing ticker, OpenAI key, or Serper key"}), 400
 
-        # ✅ Step 1: Fetch stock metadata
+        # Retrieve core financial data for the specified ticker
         stock_data = get_stock_data_from_yf(ticker)
         company_name = stock_data.get("longName", ticker)
-        print("📊 Stock data fetched")
 
-        # ✅ Step 2: News and summarization
+        # Retrieve and summarize news articles for the company
         articles = fetch_news(company_name, serper_key)
-        print(f"📰 {len(articles)} articles fetched")
         news_summary = summarize_articles(articles, openai_key)
-        print("📝 News summarized")
 
-        # ✅ Step 3: SWOT
+        # Generate SWOT analysis using OpenAI
         swot_markdown = generate_swot_analysis(company_name, openai_key).get("markdown", "")
-        print("✅ SWOT generated")
 
-        # ✅ Step 4: Forecast (with auto-train fallback)
+        # Attempt to forecast future stock prices
         try:
             forecast_df, history_df = forecast_prices(ticker)
-            print("📈 Forecast retrieved from cache or model")
+            mae = None
         except FileNotFoundError:
-            print(f"⚠️ Model not found for {ticker}, training now...")
+            # If model not found, train a new one and forecast again
             mae = train_and_save(ticker)
             forecast_df, history_df = forecast_prices(ticker)
-        else:
-            # Optional: retrain to get MAE if model already existed
-            mae = train_and_save(ticker)
 
+        # Prepare data for frontend rendering
         forecast_list = forecast_df.to_dict(orient="records")
         chart_base64 = plot_predictions(history_df, forecast_df)
-        print("📉 Price forecast and chart complete")
 
-        # ✅ Step 5: Recommendation
+        # Generate investment recommendation based on forecast and news
         recommendation_data = generate_investment_recommendation(
             forecast_list, news_summary, company_name, openai_key
         )
         recommendation = recommendation_data.get("recommendation", "No recommendation.")
-        print("💡 Recommendation generated")
 
-        # ✅ Final Report Assembly
+        # Assemble full report response
         report = {
             "ticker": ticker,
             "company": company_name,
@@ -83,28 +74,29 @@ def generate_full_report():
             },
             "swot": swot_markdown,
             "forecast": forecast_list,
-            "mae": round(mae, 2),
+            "mae": round(mae, 2) if mae is not None else None,
             "priceChart": chart_base64,
             "recommendation": recommendation
         }
 
-        print("✅ Report assembled successfully")
         return jsonify(report)
 
     except Exception as e:
-        print("❌ Error generating report:", str(e))
+        # Handle unexpected application errors
         return jsonify({"error": str(e)}), 500
 
-# === PDF Download ===
 @report_bp.route("/download", methods=["POST"])
 def download_pdf_report():
     try:
+        # Parse report content from the request
         report_data = request.get_json().get("report")
         if not report_data:
             return jsonify({"error": "No report data provided"}), 400
 
+        # Generate PDF file bytes from report content
         pdf_bytes = generate_pdf_report(report_data)
 
+        # Return PDF as downloadable file
         return send_file(
             io.BytesIO(pdf_bytes),
             mimetype="application/pdf",
@@ -113,5 +105,5 @@ def download_pdf_report():
         )
 
     except Exception as e:
-        print("❌ PDF download failed:", str(e))
+        # Handle PDF generation or transmission errors
         return jsonify({"error": str(e)}), 500

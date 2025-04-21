@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <title>{{ report.company }} Report</title>
   <style>
+    /* Basic styling for readability */
     body { font-family: Arial, sans-serif; margin: 20px; }
     h1, h2 { color: #003366; }
     .section { margin-bottom: 30px; }
@@ -12,8 +13,10 @@
   </style>
 </head>
 <body>
+  <!-- Header with company name and ticker -->
   <h1>{{ report.company }} ({{ report.ticker }})</h1>
 
+  <!-- Market data section: key stock indicators -->
   <div class="section">
     <h2>Market Data</h2>
     <ul>
@@ -25,21 +28,25 @@
     </ul>
   </div>
 
+  <!-- Forecast chart rendered from base64 image -->
   <div class="section">
     <h2>Price Forecast</h2>
     <img src="data:image/png;base64,{{ report.priceChart }}" class="chart-img" />
   </div>
 
+  <!-- AI-generated news summary based on Serper + GPT -->
   <div class="section">
     <h2>News Summary</h2>
     <p>{{ report.news.summary }}</p>
   </div>
 
+  <!-- SWOT and investment summary rendered as markdown -->
   <div class="section markdown">
     <h2>SWOT Analysis & Investment Summary</h2>
     <pre>{{ report.swot }}</pre>
   </div>
 
+  <!-- Final AI-generated recommendation (Buy/Hold/Sell) -->
   <div class="section">
     <h2>AI Recommendation</h2>
     <p>{{ report.recommendation }}</p>

@@ -9,17 +9,17 @@ news_bp = Blueprint('news', __name__)
 @news_bp.route('/api/news', methods=['POST'])
 def get_news_summary():
     try:
-        query = request.json.get("query")  # e.g., "Apple Inc." or "AAPL"
-        openai_key = request.json.get("openai_key")  # User's OpenAI API key
-        serper_key = request.json.get("serper_key")  # User's Serper API key
+        query = request.json.get("query")  
+        openai_key = request.json.get("openai_key")  
+        serper_key = request.json.get("serper_key") 
 
         if not query or not openai_key or not serper_key:
             return jsonify({"error": "Missing query, OpenAI key, or Serper key"}), 400
 
-        # Step 1: Fetch news articles using Serper
+        # Fetch news articles using Serper
         articles = fetch_news(query, serper_key)
 
-        # Step 2: Summarize articles with GPT
+        # Summarize articles with GPT
         summary = summarize_articles(articles, openai_key)
 
         return jsonify({

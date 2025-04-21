@@ -1,6 +1,8 @@
 const ReportViewer = ({ report }) => {
+  // Do not render if report is null or undefined
   if (!report) return null;
 
+  // Destructure report content with default fallbacks
   const marketData = report.marketData || {};
   const news = report.news || {};
   const swot = report.swot || "No SWOT analysis available.";
@@ -8,6 +10,7 @@ const ReportViewer = ({ report }) => {
   const mae = report.mae ?? null;
   const forecast = report.forecast || [];
 
+  // Format large numeric values into readable units (e.g., M, B, T)
   function formatMarketCap(value) {
     if (!value || isNaN(value)) return "N/A";
     const num = Number(value);
@@ -17,11 +20,13 @@ const ReportViewer = ({ report }) => {
     return num.toLocaleString();
   }
 
+  // Retrieve predicted price for a given number of days ahead
   function getForecastPrice(daysAhead) {
     const entry = forecast?.[daysAhead - 1];
     return entry?.predicted_price ?? null;
   }
 
+  // Determine color based on MAE value
   function getMAEColor(mae) {
     if (mae < 1) return "text-green-600";
     if (mae < 3) return "text-yellow-600";
@@ -30,7 +35,7 @@ const ReportViewer = ({ report }) => {
 
   return (
     <div className="space-y-6 mt-8">
-      {/* Market Overview */}
+      {/* Market Overview Section */}
       <div className="bg-white rounded-2xl shadow-md p-6">
         <h2 className="text-2xl font-bold text-blue-900 mb-2">
           {report.company ?? "Unknown Company"} ({report.ticker ?? "N/A"})
@@ -46,7 +51,7 @@ const ReportViewer = ({ report }) => {
         </div>
       </div>
 
-      {/* Forecast Chart + Summary */}
+      {/* Forecast Chart and Summary Section */}
       {report.priceChart && (
         <div className="bg-white rounded-2xl shadow-md p-6">
           <h3 className="text-xl font-semibold mb-4 text-blue-800">📊 Price Forecast</h3>
@@ -61,7 +66,7 @@ const ReportViewer = ({ report }) => {
             <h4 className="font-semibold text-blue-800 mb-2 text-sm">📉 Forecast Summary</h4>
             <ul className="text-sm text-gray-800 space-y-1">
 
-              {/* MAE Display */}
+              {/* MAE Score Display */}
               {typeof mae === "number" && (
                 <li className="mb-2">
                   📏 Model Validation MAE:{" "}
@@ -71,7 +76,7 @@ const ReportViewer = ({ report }) => {
                 </li>
               )}
 
-              {/* Forecasted Price and Change */}
+              {/* Forecasted Prices & Change % for 7, 14, 30 Days */}
               {[7, 14, 30].map((day) => {
                 const predicted = getForecastPrice(day);
                 const current = marketData.currentPrice;
@@ -105,7 +110,7 @@ const ReportViewer = ({ report }) => {
         </div>
       )}
 
-      {/* News */}
+      {/* News Summary Section */}
       {news.summary && (
         <div className="bg-white rounded-2xl shadow-md p-6">
           <h3 className="text-xl font-semibold mb-2 text-blue-800">📰 News Summary</h3>
@@ -113,13 +118,13 @@ const ReportViewer = ({ report }) => {
         </div>
       )}
 
-      {/* SWOT */}
+      {/* SWOT Analysis Section */}
       <div className="bg-white rounded-2xl shadow-md p-6">
         <h3 className="text-xl font-semibold mb-2 text-blue-800">📋 SWOT & Investment Summary</h3>
         <pre className="bg-gray-100 p-4 rounded whitespace-pre-wrap text-sm">{swot}</pre>
       </div>
 
-      {/* Recommendation */}
+      {/* Recommendation Section */}
       <div className="bg-white rounded-2xl shadow-md p-6">
         <h3 className="text-xl font-semibold mb-2 text-blue-800">💡 AI Recommendation</h3>
         <p className="text-gray-900">{recommendation}</p>

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { searchTickers } from "../utils/api";
 
+// Main input form component for collecting report inputs
 const InputForm = ({ onSubmit }) => {
   const [ticker, setTicker] = useState("");
   const [openaiKey, setOpenaiKey] = useState("");
@@ -8,8 +9,9 @@ const InputForm = ({ onSubmit }) => {
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
 
+  // Handle ticker autocomplete search using the backend API
   const handleTickerSearch = async () => {
-    if (ticker.length < 2) return;
+    if (ticker.length < 2) return; // Avoid unnecessary API calls
     try {
       const results = await searchTickers(ticker);
       setSuggestions(results.slice(0, 10));
@@ -19,11 +21,13 @@ const InputForm = ({ onSubmit }) => {
     }
   };
 
+  // When a user clicks on a ticker suggestion, set it as the active input
   const handleSuggestionClick = (symbol) => {
     setTicker(symbol);
     setShowSuggestions(false);
   };
 
+  // Validate and submit the form
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!ticker || !openaiKey || !serperKey) return;
@@ -32,7 +36,7 @@ const InputForm = ({ onSubmit }) => {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 bg-white p-6 rounded-xl shadow-md relative">
-      {/* Ticker Search */}
+      {/* Stock Ticker Input */}
       <div className="relative">
         <label className="block mb-1 text-sm font-medium text-gray-700">Stock Ticker</label>
         <div className="flex space-x-2">
@@ -51,6 +55,8 @@ const InputForm = ({ onSubmit }) => {
             🔍 Search
           </button>
         </div>
+
+        {/* Display autocomplete suggestions */}
         {showSuggestions && suggestions.length > 0 && (
           <ul className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-48 overflow-y-auto">
             {suggestions.map((item) => (
@@ -66,7 +72,7 @@ const InputForm = ({ onSubmit }) => {
         )}
       </div>
 
-      {/* OpenAI Key */}
+      {/* OpenAI API Key Field */}
       <div>
         <label className="block mb-1 text-sm font-medium text-gray-700">OpenAI API Key</label>
         <input
@@ -89,7 +95,7 @@ const InputForm = ({ onSubmit }) => {
         </p>
       </div>
 
-      {/* Serper Key */}
+      {/* Serper API Key Field */}
       <div>
         <label className="block mb-1 text-sm font-medium text-gray-700">Serper API Key</label>
         <input
