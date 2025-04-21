@@ -18,7 +18,7 @@ def create_app():
     app = Flask(__name__)
 
     # Enable Cross-Origin Resource Sharing (useful for frontend-backend communication)
-    CORS(app)
+    CORS(app, resources={r"/api/*": {"origins": "*"}})
 
     # Register modular route blueprints
     app.register_blueprint(data_bp)
