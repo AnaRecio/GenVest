@@ -1,4 +1,4 @@
-const BASE_URL = "https://genvest-production-ec2c.up.railway.app";
+const BASE_URL = "https://genvest-production-ec2c.up.railway.app/api";
 
 /**
  * Sends user input to the backend to generate an investment report
