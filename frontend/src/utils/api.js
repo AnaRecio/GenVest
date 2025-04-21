@@ -32,7 +32,7 @@ export async function generateReport(ticker, openaiKey, serperKey) {
 export const downloadPDF = async (report) => {
   try {
     // Send the report object to the backend for PDF generation
-    const response = await fetch(`${BASE_URL}/s/download`, {
+    const response = await fetch(`${BASE_URL}/download`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ report }),
