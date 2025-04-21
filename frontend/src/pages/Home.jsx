@@ -8,9 +8,12 @@ import { generateReport } from "../utils/api";
 const Home = () => {
   const [report, setReport] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState("");
 
   const handleGenerate = async (ticker, openaiKey, serperKey) => {
+    setLoadingMessage(`⏳ Training model for ${ticker.toUpperCase()}...`);
     setLoading(true);
+
     try {
       const result = await generateReport(ticker, openaiKey, serperKey);
       setReport(result);
@@ -28,7 +31,7 @@ const Home = () => {
           💼 GenVest: AI-Powered Investment Reports
         </h1>
         <InputForm onSubmit={handleGenerate} />
-        {loading && <Loader />}
+        {loading && <Loader message={loadingMessage} />}
         {!loading && report && (
           <>
             <ReportViewer report={report} />
@@ -41,4 +44,3 @@ const Home = () => {
 };
 
 export default Home;
-

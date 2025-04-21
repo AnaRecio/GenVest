@@ -5,6 +5,7 @@ const ReportViewer = ({ report }) => {
   const news = report.news || {};
   const swot = report.swot || "No SWOT analysis available.";
   const recommendation = report.recommendation || "No recommendation generated.";
+  const mae = report.mae ?? null;
   const forecast = report.forecast || [];
 
   function formatMarketCap(value) {
@@ -13,12 +14,18 @@ const ReportViewer = ({ report }) => {
     if (num >= 1_000_000_000_000) return (num / 1_000_000_000_000).toFixed(1) + "T";
     if (num >= 1_000_000_000) return (num / 1_000_000_000).toFixed(1) + "B";
     if (num >= 1_000_000) return (num / 1_000_000).toFixed(1) + "M";
-    return num.toLocaleString(); // fallback
+    return num.toLocaleString();
   }
 
   function getForecastPrice(daysAhead) {
     const entry = forecast?.[daysAhead - 1];
     return entry?.predicted_price ?? null;
+  }
+
+  function getMAEColor(mae) {
+    if (mae < 1) return "text-green-600";
+    if (mae < 3) return "text-yellow-600";
+    return "text-red-600";
   }
 
   return (
@@ -43,15 +50,31 @@ const ReportViewer = ({ report }) => {
       {report.priceChart && (
         <div className="bg-white rounded-2xl shadow-md p-6">
           <h3 className="text-xl font-semibold mb-4 text-blue-800">📊 Price Forecast</h3>
-          <img src={`data:image/png;base64,${report.priceChart}`} alt="Chart" className="w-full max-w-3xl" />
+          <img
+            src={`data:image/png;base64,${report.priceChart}`}
+            alt="Chart"
+            className="w-full max-w-3xl"
+          />
 
           {/* Forecast Summary Box */}
           <div className="mt-6 max-w-sm bg-blue-50 border border-blue-200 rounded-lg p-4">
             <h4 className="font-semibold text-blue-800 mb-2 text-sm">📉 Forecast Summary</h4>
             <ul className="text-sm text-gray-800 space-y-1">
+
+              {/* MAE Display */}
+              {typeof mae === "number" && (
+                <li className="mb-2">
+                  📏 Model Validation MAE:{" "}
+                  <strong className={`${getMAEColor(mae)}`}>
+                    ${mae.toFixed(2)}
+                  </strong>
+                </li>
+              )}
+
+              {/* Forecasted Price and Change */}
               {[7, 14, 30].map((day) => {
                 const predicted = getForecastPrice(day);
-                const current = report.marketData?.currentPrice;
+                const current = marketData.currentPrice;
 
                 const change =
                   typeof predicted === "number" && typeof current === "number"

@@ -26,28 +26,33 @@ export async function generateReport(ticker, openaiKey, serperKey) {
 /**
  * Downloads a generated investment report as a PDF file
  */
-export async function downloadPDF(report) {
-  const res = await fetch(`${BASE_URL}/report/download`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ report }),
-  });
+export const downloadPDF = async (report) => {
+  try {
+    const response = await fetch("/api/report/download", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ report }),
+    });
 
-  if (!res.ok) {
-    throw new Error("Failed to download PDF");
+    if (!response.ok) {
+      throw new Error(`Server returned ${response.status}`);
+    }
+
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "genvest_report.pdf";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.URL.revokeObjectURL(url);
+  } catch (error) {
+    console.error("Download failed:", error);
+    alert("❌ Failed to download PDF report.");
   }
-
-  const blob = await res.blob();
-  const url = window.URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = "genvest_report.pdf";
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-}
+};
 
 /**
  * Fetches stock ticker suggestions based on user query

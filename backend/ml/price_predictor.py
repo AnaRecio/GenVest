@@ -1,8 +1,7 @@
 from flask import Blueprint, request, jsonify
 from ml.predict import forecast_prices
-from ml.train import train_and_save  # 🔧 Import train
+from ml.utils import fetch_stock_history
 from app.utils.charts import plot_predictions
-import os
 
 prediction_bp = Blueprint("prediction", __name__)
 
@@ -13,23 +12,16 @@ def predict_stock_prices():
         if not ticker:
             return jsonify({"error": "Ticker is required"}), 400
 
-        try:
-            # 🔍 Try prediction
-            forecast_df, history_df, mae = forecast_prices(ticker)
-        except FileNotFoundError:
-            # 🛠️ Train if model missing
-            print(f"📉 Model missing for {ticker}, training now...")
-            train_and_save(ticker)
-            forecast_df, history_df, mae = forecast_prices(ticker)
-
+        forecast_df, history_df = forecast_prices(ticker)
+        history_df = fetch_stock_history(ticker)
         chart_base64 = plot_predictions(history_df, forecast_df)
 
         return jsonify({
             "ticker": ticker,
             "predictions": forecast_df.to_dict(orient="records"),
-            "chart": chart_base64,
-            "mae": round(mae, 4)  # Optional: send validation metric
+            "chart": chart_base64
         })
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+

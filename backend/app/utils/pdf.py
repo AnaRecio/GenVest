@@ -68,6 +68,7 @@ def generate_pdf_report(report_data):
     # Price Forecast Chart
     chart_data = report_data.get("priceChart")
     forecast = report_data.get("forecast", [])
+    mae = report_data.get("mae", None)
 
     if chart_data:
         try:
@@ -110,6 +111,13 @@ def generate_pdf_report(report_data):
                 line = f"Next {days_ahead} Days: N/A"
             pdf.drawString(60, y, line)
             y -= 14
+
+        if mae:
+            y -= 6
+            pdf.setFont("Helvetica-Bold", 10)
+            pdf.drawString(60, y, f"Model Validation MAE: ${mae:.2f}")
+            y -= 12
+
         y -= 10
 
     if forecast and current_price:
