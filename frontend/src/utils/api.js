@@ -66,7 +66,7 @@ export const downloadPDF = async (report) => {
  */
 export async function searchTickers(query) {
   // Call backend API with search query as query param
-  const res = await fetch(`http://localhost:5000/api/search?q=${query}`);
+  const res = await fetch(`${BASE_URL}/search?q=${encodeURIComponent(query)}`);
 
   // Handle request failure
   if (!res.ok) {
