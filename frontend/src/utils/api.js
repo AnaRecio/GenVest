@@ -28,7 +28,7 @@ export async function generateReport(ticker, openaiKey, serperKey) {
  */
 export const downloadPDF = async (report) => {
   try {
-    const response = await fetch("/api/report/download", {
+    const response = await fetch("http://localhost:5000/api/download", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ report }),
