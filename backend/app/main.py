@@ -2,7 +2,6 @@ from flask import Flask
 from flask_cors import CORS
 
 # Import route blueprints
-from app.routes.data import data_bp
 from app.routes.report import report_bp
 from app.routes.search import search_bp
 
@@ -21,7 +20,6 @@ def create_app():
     CORS(app, resources={r"/api/*": {"origins": "*"}})
 
     # Register modular route blueprints
-    app.register_blueprint(data_bp)
     app.register_blueprint(report_bp)
     app.register_blueprint(search_bp)
 

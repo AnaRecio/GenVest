@@ -18,7 +18,7 @@ const Home = () => {
 
   // Function to handle the form submission and trigger report generation
   const handleGenerate = async (ticker, openaiKey, serperKey) => {
-    setLoadingMessage(`⏳ Training model for ${ticker.toUpperCase()}...`);
+    setLoadingMessage(`⏳ Generating Investment Report for ${ticker.toUpperCase()}...`);
     setLoading(true);
 
     try {
