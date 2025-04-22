@@ -1,5 +1,4 @@
 from flask import Blueprint, request, jsonify, send_file
-from app.routes.data import get_stock_data
 from app.services.serper_client import fetch_news
 from app.services.openai_client import (
     summarize_articles,
